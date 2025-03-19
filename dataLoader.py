@@ -1,7 +1,7 @@
 import os
-import re
 from glob import glob
 from math import floor
+from os.path import join
 
 import numpy as np
 from scipy import signal
@@ -91,6 +91,8 @@ def process_data(file_path, pos, neg):
 
         event_idx, event_dict = mne.events_from_annotations(raw, verbose=False)
 
+        event_idx[:, 0] = event_idx[:, 0] // 2 # Downsample to 250 Hz
+
         label_dict = get_label_dict(event_dict, pos, neg)
 
         file_data = get_event_data_labels(file_data, event_idx, label_dict)
@@ -110,7 +112,7 @@ def augment_data(data, scale):
     return aug_data
 
 
-def load(file_path, batch_size, pos, neg, shuffle=True, augment=0.2e-6):
+def load(file_path, batch_size, pos, neg, shuffle=True, augment=0):
     data, labels = process_data(file_path, pos, neg)
 
     full_train_data, test_data, train_val_labels, test_labels = train_test_split(
@@ -149,5 +151,5 @@ def load(file_path, batch_size, pos, neg, shuffle=True, augment=0.2e-6):
     return trainloader, valloader, testloader, train_val_loader
 
 if __name__ == "__main__":
-    path = os.path.join("..", "online-classification", "data", "processed_files", "S1", "Session1")
-    load(path, 64, pos='MI', neg='Rest')
+    path = join("data", "S15", '*')
+    load(path, 24, pos='MI', neg='MM')

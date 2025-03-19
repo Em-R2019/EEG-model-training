@@ -14,7 +14,7 @@ from EEGNet import EEGNetModel as EEGNet
 # from models.ATCNet import ATCNet_ as ATCNet
 import matplotlib.pyplot as plt
 
-def train(model_name, train_loader, val_loader, learning_rate, epochs, batch_size, output_path:str, seed=None, validate=True, model_path=None, val_loss = 0):
+def train(model_name, train_loader, val_loader, learning_rate, epochs, batch_size, output_path:str, seed=None, validate=True, model_path=None, val_loss = 0, pos_weight=1):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -61,7 +61,8 @@ def train(model_name, train_loader, val_loader, learning_rate, epochs, batch_siz
         model.load_state_dict(state_dict, strict=False)
 
     print("Building optimizer")
-    criterion = nn.BCEWithLogitsLoss()
+    pos_weight = torch.tensor([pos_weight])
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     acc = BinaryAccuracy(threshold=0.5)
 

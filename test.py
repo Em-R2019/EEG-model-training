@@ -13,7 +13,7 @@ from EEGNet import EEGNetModel as EEGNet
 
 
 
-def test(model_name, test_loader, model_path):
+def test(model_name, test_loader, model_path, pos_weight=1):
     # current_model = model_options[model_name][0]
     # hidden_layer = model_options[model_name][1]
 
@@ -40,7 +40,8 @@ def test(model_name, test_loader, model_path):
 
     acc = BinaryAccuracy(threshold=0.5)
 
-    criterion = nn.BCEWithLogitsLoss()
+    pos_weight = torch.tensor([pos_weight])
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     if use_cuda:
         acc = acc.cuda()
