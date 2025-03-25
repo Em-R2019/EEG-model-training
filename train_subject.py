@@ -28,13 +28,13 @@ if __name__ == '__main__':
     data_path = join("data", subject, '*')
     model_name = 'EEGNet'
 
-    for classes in [['MM', 'MI'], ['MI', 'Rest']]:
+    for classes in [['MM', 'MI'], [['MI', 'MM'], 'Rest']]:
         output_path = join("output", subject, session)
 
         if classes[0] == 'MM':
             posweight = 2
         else:
-            posweight = 1.5
+            posweight = 1
 
         train_loader, val_loader, test_loader, full_train_loader = dataLoader.load(data_path, batch_size,
                                                                                    augment=augment, pos=classes[0],
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
         if classes[0] == 'MM':
             rename(model_path, join(output_path, f"mimm_{subject}_{session}.pt"))
-        if classes[0] == 'MI':
+        else:
             rename(model_path, join(output_path, f"restmi_{subject}_{session}.pt"))
 
         result_df = pd.concat([result_df, result], ignore_index=True)

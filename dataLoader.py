@@ -44,10 +44,17 @@ def get_event_data_labels(data, event_idx, label_dict):
 def get_label_dict(event_dict, pos, neg):
     label_dict = {}
 
-    if pos in event_dict:
-        label_dict[event_dict[pos]] = 1
-    if neg in event_dict:
-        label_dict[event_dict[neg]] = 0
+    if isinstance(pos, str):
+        pos = [pos]
+    if isinstance(neg, str):
+        neg = [neg]
+
+    for pos_label in pos:
+        if pos_label in event_dict:
+            label_dict[event_dict[pos_label]] = 1
+    for neg_label in neg:
+        if neg_label in event_dict:
+            label_dict[event_dict[neg_label]] = 0
     return label_dict
 
 def segment_data(data, dt):
@@ -78,15 +85,18 @@ def process_data(file_path, pos, neg):
     data = []
     labels = []
 
-    sos_notch = signal.butter(10, [59.5, 60,5], 'bandstop', fs=160, output='sos')
+    sos_notch = None
 
     data_path = os.path.join(file_path, "*.fif")
     for file in glob(data_path):
         raw = mne.io.read_raw_fif(file, verbose=False, preload=True)
 
+        if sos_notch is None:
+            sos_notch = signal.butter(10, [59.5, 60,5], 'bandstop', fs=raw.info['sfreq'], output='sos')
+
         file_data = raw.get_data(picks=range(1, 19))
 
-        file_data = signal.sosfilt(sos_notch, file_data, axis=1)
+        file_data = signal.sosfiltfilt(sos_notch, file_data, axis=1)
         file_data = block_reduce(file_data, block_size=(1,2), func=np.mean, cval=np.mean(file_data))
 
         event_idx, event_dict = mne.events_from_annotations(raw, verbose=False)
@@ -151,5 +161,5 @@ def load(file_path, batch_size, pos, neg, shuffle=True, augment=0):
     return trainloader, valloader, testloader, train_val_loader
 
 if __name__ == "__main__":
-    path = join("data", "S15", '*')
-    load(path, 24, pos='MI', neg='MM')
+    path = join("data", "S3", '*')
+    load(path, 24, pos=['MI', 'MM'], neg='Rest')
