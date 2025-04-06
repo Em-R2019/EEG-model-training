@@ -25,7 +25,7 @@ if __name__ == '__main__':
     use_filter = True
     augment = 1e-3
 
-    data_path = join("data", subject, '*')
+    data_path = join("data", subject)
     model_name = 'EEGNet'
 
     for classes in [['MM', 'MI'], [['MI', 'MM'], 'Rest']]:

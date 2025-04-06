@@ -85,18 +85,18 @@ def process_data(file_path, pos, neg):
     data = []
     labels = []
 
-    sos_notch = None
+    # sos_notch = None
 
     data_path = os.path.join(file_path, "*.fif")
     for file in glob(data_path):
         raw = mne.io.read_raw_fif(file, verbose=False, preload=True)
 
-        if sos_notch is None:
-            sos_notch = signal.butter(10, [59.5, 60,5], 'bandstop', fs=raw.info['sfreq'], output='sos')
+        # if sos_notch is None:
+        #     sos_notch = signal.butter(10, [59.5, 60,5], 'bandstop', fs=raw.info['sfreq'], output='sos')
 
         file_data = raw.get_data(picks=range(1, 19))
 
-        file_data = signal.sosfiltfilt(sos_notch, file_data, axis=1)
+        # file_data = signal.sosfiltfilt(sos_notch, file_data, axis=1)
         file_data = block_reduce(file_data, block_size=(1,2), func=np.mean, cval=np.mean(file_data))
 
         event_idx, event_dict = mne.events_from_annotations(raw, verbose=False)
