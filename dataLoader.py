@@ -4,7 +4,7 @@ from math import floor
 from os.path import join
 
 import numpy as np
-from scipy import signal
+# from scipy import signal
 from skimage.measure import block_reduce
 from torch.utils.data import Dataset, DataLoader
 import mne as mne
@@ -85,18 +85,18 @@ def process_data(file_path, pos, neg):
     data = []
     labels = []
 
-    sos_low = None
+    # sos_low = None
 
     data_path = os.path.join(file_path, "*.fif")
-    for file in glob(data_path):
+    for file in glob(data_path, recursive=True):
         raw = mne.io.read_raw_fif(file, verbose=False, preload=True)
 
-        if sos_low is None:
-            sos_low = signal.butter(10, 40, 'lowpass', fs=250, output='sos')
+        # if sos_low is None:
+        #     sos_low = signal.butter(10, 40, 'lowpass', fs=250, output='sos')
 
         file_data = raw.get_data(picks=range(1, 19))
 
-        file_data = signal.sosfiltfilt(sos_low, file_data, axis=1)
+        # file_data = signal.sosfiltfilt(sos_low, file_data, axis=1)
         file_data = block_reduce(file_data, block_size=(1,2), func=np.mean, cval=np.mean(file_data))
 
         event_idx, event_dict = mne.events_from_annotations(raw, verbose=False)

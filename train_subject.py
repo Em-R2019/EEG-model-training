@@ -25,10 +25,20 @@ if __name__ == '__main__':
     use_filter = True
     augment = 1e-3
 
-    data_path = join("data", subject)
+    data_path = join("data", subject, '**')
     model_name = 'EEGNet'
 
-    for classes in [['MM', 'MI'], [['MI', 'MM'], 'Rest']]:
+    if len(args) > 2:
+        if args[2] == 'mimm':
+            classes_set = [['MM', 'MI']]
+        elif args[2] == 'restmi':
+            classes_set = [[['MI', 'MM'], 'Rest']]
+        else:
+            raise Exception(f"Unknown argument: {args[2]}")
+    else:
+        classes_set = [['MM', 'MI'], [['MI', 'MM'], 'Rest']]
+
+    for classes in classes_set:
         output_path = join("output", subject, session)
 
         if classes[0] == 'MM':
@@ -39,6 +49,8 @@ if __name__ == '__main__':
         train_loader, val_loader, test_loader, full_train_loader = dataLoader.load(data_path, batch_size,
                                                                                    augment=augment, pos=classes[0],
                                                                                    neg=classes[1])
+
+        print(f"Training {model_name} on {subject} with classes {classes[0]} and {classes[1]}")
 
         train_result, valid_result, train_result_acc, val_result_acc, version, epochs = train(model_name, train_loader,
                                                                                               val_loader, LR, EPOCHS,
