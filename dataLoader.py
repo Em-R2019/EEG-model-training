@@ -66,10 +66,11 @@ def segment_data(data, dt):
     dsample = round(1/dt)
     overlap = round(0.5/dt)
     dsample_start = dsample - overlap
+    start = round(1/dt)
 
     for task in data:
         task_label = task[1]
-        task_data = task[0][0:channels, :]
+        task_data = task[0][0:channels, start:]
 
         nsegments = len(task_data[1]) / dsample
         nsegments = floor(nsegments * (dsample / overlap) - 1)
@@ -81,7 +82,7 @@ def segment_data(data, dt):
     return segmented_data, labels
 
 
-def process_data(file_path, pos, neg):
+def process_data(file_path, pos, neg, exclude_first_session=False):
     data = []
     labels = []
 
@@ -89,6 +90,9 @@ def process_data(file_path, pos, neg):
 
     data_path = os.path.join(file_path, "*.fif")
     for file in glob(data_path, recursive=True):
+        if exclude_first_session and "Session1" in file and "MM" not in file:
+            continue
+
         raw = mne.io.read_raw_fif(file, verbose=False, preload=True)
 
         # if sos_low is None:
@@ -122,8 +126,8 @@ def augment_data(data, scale):
     return aug_data
 
 
-def load(file_path, batch_size, pos, neg, shuffle=True, augment=0):
-    data, labels = process_data(file_path, pos, neg)
+def load(file_path, batch_size, pos, neg, shuffle=True, augment=0, exclude_first_session=False):
+    data, labels = process_data(file_path, pos, neg, exclude_first_session)
 
     full_train_data, test_data, train_val_labels, test_labels = train_test_split(
         data, labels,

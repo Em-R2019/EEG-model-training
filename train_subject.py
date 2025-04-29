@@ -33,10 +33,22 @@ if __name__ == '__main__':
             classes_set = [['MM', 'MI']]
         elif args[2] == 'restmi':
             classes_set = [[['MI', 'MM'], 'Rest']]
+        elif args[2] == 'restmi_ex':
+            classes_set = [['MI', 'Rest']]
+        elif args[2] == '_':
+            classes_set = [['MM', 'MI'], [['MI', 'MM'], 'Rest']]
         else:
             raise Exception(f"Unknown argument: {args[2]}")
     else:
         classes_set = [['MM', 'MI'], [['MI', 'MM'], 'Rest']]
+
+    if len(args) > 3:
+        if args[3] == 'single':
+            data_path = join("data", subject, session)
+
+    exclude_first_session = False
+    if args[1] == '4':
+        exclude_first_session = True
 
     for classes in classes_set:
         output_path = join("output", subject, session)
@@ -48,7 +60,7 @@ if __name__ == '__main__':
 
         train_loader, val_loader, test_loader, full_train_loader = dataLoader.load(data_path, batch_size,
                                                                                    augment=augment, pos=classes[0],
-                                                                                   neg=classes[1])
+                                                                                   neg=classes[1], exclude_first_session=exclude_first_session)
 
         print(f"Training {model_name} on {subject} with classes {classes[0]} and {classes[1]}")
 
@@ -109,4 +121,5 @@ if __name__ == '__main__':
         ax2.set_title('Train vs Validation Accuracy')
         ax2.legend(['Train', 'Full train', 'Validation', 'Test'])
         fig2.savefig(join(log_path, "accuracy.png"))
+
         result_df.to_csv(f'train_results_subject{subject}.csv')
