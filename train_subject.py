@@ -35,8 +35,6 @@ if __name__ == '__main__':
             classes_set = [[['MI', 'MM'], 'Rest']]
         elif args[2] == 'restmi_ex':
             classes_set = [['MI', 'Rest']]
-        elif args[2] == '_':
-            classes_set = [['MM', 'MI'], [['MI', 'MM'], 'Rest']]
         else:
             raise Exception(f"Unknown argument: {args[2]}")
     else:
@@ -49,6 +47,7 @@ if __name__ == '__main__':
     exclude_first_session = False
     if args[1] == '4':
         exclude_first_session = True
+        print('excluding first session')
 
     for classes in classes_set:
         output_path = join("output", subject, session)
